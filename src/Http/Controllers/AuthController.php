@@ -63,4 +63,9 @@ class AuthController extends Controller
         }
         return redirect()->away(config('services.usersau.host') . '/account');
     }
+
+    public function register()
+    {
+        return redirect()->away(config('services.usersau.host') . '/register');
+    }
 }

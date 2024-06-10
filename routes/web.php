@@ -11,6 +11,11 @@ Route::group([
             'redirect'
         ])->name('login');
 
+        Route::get('/auth/usersau/register', [
+            \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
+            'register'
+        ])->name('register');
+
         Route::get('/auth/usersau/callback', [
             \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
             'callback'
