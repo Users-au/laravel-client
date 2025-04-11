@@ -18,7 +18,7 @@ Requirements:
 To get the latest version, simply run:
 
 ```
-composer require users-au/users-au-laravel-client
+composer require users-au/laravel-client
 ```
 
 Then do vendor publish:
