@@ -1,8 +1,8 @@
 {
-    "name": "users-au/users-au-laravel-client",
+    "name": "users-au/laravel-client",
     "type": "library",
     "description": "Users.au Laravel Client",
-    "homepage": "https://github.com/users-au/users-au-laravel-client",
+    "homepage": "https://github.com/users-au/laravel-client",
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +13,7 @@
     ],
     "require": {
         "php" : "^8.0",
-        "socialiteproviders/usersau": "^1.1",
+        "users-au/socialite-provider": "^1.1",
         "illuminate/support": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
         "illuminate/routing": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
         "illuminate/contracts": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
