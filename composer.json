@@ -36,8 +36,11 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
-        "test-coverage": "phpunit --coverage-html coverage"
+        "test": "phpunit --no-coverage",
+        "test-coverage": "phpunit --coverage-html build/coverage --coverage-clover build/logs/clover.xml",
+        "check": [
+            "@test"
+        ]
     },
     "extra": {
         "branch-alias": {
