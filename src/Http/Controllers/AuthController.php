@@ -39,7 +39,7 @@ class AuthController extends Controller
             $url = config('usersau.after_login_url');
             return redirect()->to($url);
         } catch (\Laravel\Socialite\Two\InvalidStateException|\GuzzleHttp\Exception\ClientException $e) {
-            return redirect()->route('login')->with('status', 'Unable to login at this time. Please try again.');
+            return redirect()->route('usersau.login')->with('status', 'Unable to login at this time. Please try again.');
         }
     }
 
@@ -59,7 +59,7 @@ class AuthController extends Controller
         /** @var Authenticatable $user */
         $user = app(\Illuminate\Support\Facades\Auth::class)::user();
         if (!$user) {
-            return redirect()->route('login');
+            return redirect()->route('usersau.login');
         }
         return redirect()->away(config('services.usersau.host') . '/account');
     }

@@ -1,0 +1,48 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: [8.0, 8.1, 8.2, 8.3]
+        laravel-version: ['^8.0', '^9.0', '^10.0']
+        exclude:
+          - php-version: 8.0
+            laravel-version: '^10.0'
+    
+    name: PHP ${{ matrix.php-version }} - Laravel ${{ matrix.laravel-version }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: none
+    
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php-version }}-
+    
+    - name: Install dependencies
+      run: |
+        composer require "illuminate/support:${{ matrix.laravel-version }}" "illuminate/routing:${{ matrix.laravel-version }}" "illuminate/contracts:${{ matrix.laravel-version }}" "illuminate/database:${{ matrix.laravel-version }}" --no-interaction --no-update
+        composer update --prefer-dist --no-interaction --no-progress
+    
+    - name: Run test suite
+      run: composer test 
