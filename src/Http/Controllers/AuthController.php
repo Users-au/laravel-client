@@ -37,6 +37,7 @@ class AuthController extends Controller
             app(\Illuminate\Support\Facades\Auth::class)::login($user);
             // After login redirect to the url set in config/usersau.php
             $url = config('usersau.after_login_url');
+
             return redirect()->to($url);
         } catch (\Laravel\Socialite\Two\InvalidStateException|\GuzzleHttp\Exception\ClientException $e) {
             return redirect()->route('usersau.login')->with('status', 'Unable to login at this time. Please try again.');
@@ -51,6 +52,7 @@ class AuthController extends Controller
         $url = config('services.usersau.host') . '/logout?' . http_build_query([
             'continue' => url(config('usersau.after_logout_url')),
         ]);
+
         return redirect()->away($url);
     }
 
@@ -58,9 +60,10 @@ class AuthController extends Controller
     {
         /** @var Authenticatable $user */
         $user = app(\Illuminate\Support\Facades\Auth::class)::user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('usersau.login');
         }
+
         return redirect()->away(config('services.usersau.host') . '/account');
     }
 

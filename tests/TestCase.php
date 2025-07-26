@@ -14,7 +14,7 @@ abstract class TestCase extends OrchestraTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->setUpDatabase();
     }
 
@@ -30,9 +30,9 @@ abstract class TestCase extends OrchestraTestCase
     {
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
 
         $app['config']->set('app.key', 'base64:' . base64_encode(str_repeat('a', 32)));
@@ -75,7 +75,7 @@ abstract class TestCase extends OrchestraTestCase
 class TestUser extends Model
 {
     protected $table = 'users';
-    
+
     protected $fillable = [
         'name',
         'email',
@@ -91,4 +91,4 @@ class TestUser extends Model
         'usersau_access_token',
         'usersau_refresh_token',
     ];
-} 
+}

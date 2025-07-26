@@ -10,7 +10,7 @@ class ServiceProviderTest extends TestCase
     public function test_service_provider_is_registered()
     {
         $providers = $this->app->getLoadedProviders();
-        
+
         $this->assertArrayHasKey(UsersauLaravelClientServiceProvider::class, $providers);
     }
 
@@ -18,7 +18,7 @@ class ServiceProviderTest extends TestCase
     {
         $router = $this->app['router'];
         $routes = $router->getRoutes();
-        
+
         $expectedRoutes = [
             'auth/usersau/redirect',
             'auth/usersau/callback',
@@ -26,12 +26,13 @@ class ServiceProviderTest extends TestCase
             'auth/usersau/register',
             'auth/usersau/account',
         ];
-        
+
         foreach ($expectedRoutes as $expectedRoute) {
             $found = false;
             foreach ($routes as $route) {
                 if ($route->uri() === $expectedRoute) {
                     $found = true;
+
                     break;
                 }
             }
@@ -45,7 +46,7 @@ class ServiceProviderTest extends TestCase
         $this->assertEquals('test_client_secret', config('services.usersau.client_secret'));
         $this->assertEquals('http://localhost/auth/usersau/callback', config('services.usersau.redirect'));
         $this->assertEquals('http://localhost', config('services.usersau.host'));
-        
+
         $this->assertEquals('/dashboard', config('usersau.after_login_url'));
         $this->assertEquals('/', config('usersau.after_logout_url'));
         $this->assertEquals('/welcome', config('usersau.after_register_url'));
@@ -55,10 +56,10 @@ class ServiceProviderTest extends TestCase
     public function test_event_service_provider_is_registered()
     {
         $providers = $this->app->getLoadedProviders();
-        
+
         $this->assertArrayHasKey(
-            \Usersau\UsersauLaravelClient\Providers\EventServiceProvider::class, 
+            \Usersau\UsersauLaravelClient\Providers\EventServiceProvider::class,
             $providers
         );
     }
-} 
+}

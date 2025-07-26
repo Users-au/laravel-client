@@ -2,33 +2,34 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group([
-    'middleware' => config('usersau.middleware', ['web'])
+Route::group(
+    [
+    'middleware' => config('usersau.middleware', ['web']),
 ],
     function () {
         Route::get('/auth/usersau/redirect', [
             \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
-            'redirect'
+            'redirect',
         ])->name('login');
 
         Route::get('/auth/usersau/register', [
             \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
-            'register'
+            'register',
         ])->name('register');
 
         Route::get('/auth/usersau/callback', [
             \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
-            'callback'
+            'callback',
         ]);
 
         Route::get('/auth/usersau/logout', [
             \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
-            'logout'
+            'logout',
         ])->name('logout');
 
         Route::get('/auth/usersau/account', [
             \Usersau\UsersauLaravelClient\Http\Controllers\AuthController::class,
-            'account'
+            'account',
         ])->name('account');
     }
 );

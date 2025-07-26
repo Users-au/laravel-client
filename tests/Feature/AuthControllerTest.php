@@ -54,7 +54,7 @@ class AuthControllerTest extends TestCase
         $response = $this->get('/auth/usersau/callback');
 
         $response->assertRedirect('/dashboard');
-        
+
         $this->assertDatabaseHas('users', [
             'usersau_id' => '12345',
             'name' => 'John Doe',
@@ -97,7 +97,7 @@ class AuthControllerTest extends TestCase
         $response = $this->get('/auth/usersau/callback');
 
         $response->assertRedirect('/dashboard');
-        
+
         $this->assertDatabaseHas('users', [
             'usersau_id' => '12345',
             'name' => 'Updated Name',
@@ -160,7 +160,7 @@ class AuthControllerTest extends TestCase
     {
         $user = new TestUser();
         $user->id = 1;
-        
+
         Auth::shouldReceive('user')->andReturn($user);
 
         $response = $this->get('/auth/usersau/account');
@@ -196,7 +196,7 @@ class AuthControllerTest extends TestCase
     {
         $router = app('router');
         $routes = $router->getRoutes();
-        
+
         foreach ($routes as $route) {
             if (str_contains($route->uri, 'auth/usersau')) {
                 $this->assertContains('web', $route->middleware());
@@ -209,4 +209,4 @@ class AuthControllerTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

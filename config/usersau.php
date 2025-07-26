@@ -1,4 +1,5 @@
 <?php
+
 return [
     'after_login_url' => '/',
     'after_logout_url' => '/',

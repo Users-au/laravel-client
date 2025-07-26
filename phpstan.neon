@@ -1,0 +1,18 @@
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        - '#Access to an undefined property Laravel\\Socialite\\Contracts\\User::\$token#'
+        - '#Access to an undefined property Laravel\\Socialite\\Contracts\\User::\$refreshToken#'
+        - '#Call to an undefined method Mockery\\.*::once\(\)#'
+        - '#Call to an undefined method Illuminate\\Testing\\TestResponse::getTargetUrl\(\)#'
+        - '#Access to an undefined property Mockery\\MockInterface::\$token#'
+        - '#Access to an undefined property Mockery\\MockInterface::\$refreshToken#'
+        - '#Call to an undefined static method .*TestUser::create\(\)#'
+        - '#Access to an undefined property .*TestUser::\$id#'
+        - '#Variable .* in PHPDoc tag @var does not match assigned variable#'
+        - '#Variable .* in PHPDoc tag @var does not exist#'
+        - '#Negated boolean expression is always false#'
+        - '#PHPDoc type array of property .*EventServiceProvider::\$listen is not covariant#'

@@ -1,5 +1,63 @@
-.idea
-vendor
+# Dependencies
+vendor/
+node_modules/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Build directories
+build/
+dist/
+
+# PHP
 composer.lock
 .phpunit.cache
-build
+.php-cs-fixer.cache
+
+# PHPUnit
+.phpunit.result.cache
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+tmp/
+temp/
+
+# Cache
+cache/
+.cache/
+
+# Claude
+.claude/
