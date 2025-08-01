@@ -10,6 +10,9 @@ class AuthController extends Controller
 {
     public function redirect()
     {
+        // Store in session that this is a login flow
+        session(['usersau_flow' => 'login']);
+        
         return Socialite::driver('usersau')->redirect();
     }
 
@@ -30,13 +33,23 @@ class AuthController extends Controller
             if (config('usersau.profile_photo_column') ?? false) {
                 $updateArray[config('usersau.profile_photo_column')] = $authUser->getAvatar();
             }
+            
             $user = $userModel->updateOrCreate([
                 'usersau_id' => $authUser->getId(),
             ], $updateArray);
+            
             // Logging the user in
             app(\Illuminate\Support\Facades\Auth::class)::login($user);
-            // After login redirect to the url set in config/usersau.php
-            $url = config('usersau.after_login_url');
+            
+            // Redirect based on the flow that initiated the OAuth process
+            $flow = session('usersau_flow', 'login'); // Default to login for backward compatibility
+            session()->forget('usersau_flow'); // Clean up the session
+            
+            if ($flow === 'register') {
+                $url = config('usersau.after_register_url');
+            } else {
+                $url = config('usersau.after_login_url');
+            }
 
             return redirect()->to($url);
         } catch (\Laravel\Socialite\Two\InvalidStateException|\GuzzleHttp\Exception\ClientException $e) {
@@ -69,6 +82,15 @@ class AuthController extends Controller
 
     public function register()
     {
-        return redirect()->away(config('services.usersau.host') . '/register');
+        // Store in session that this is a registration flow
+        session(['usersau_flow' => 'register']);
+        
+        // Build the registration URL with redirect_uri parameter, similar to how Socialite handles login
+        $callbackUrl = url('/auth/usersau/callback');
+        $registerUrl = config('services.usersau.host') . '/register?' . http_build_query([
+            'redirect_uri' => $callbackUrl,
+        ]);
+        
+        return redirect()->away($registerUrl);
     }
 }

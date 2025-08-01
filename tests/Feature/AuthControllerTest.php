@@ -145,6 +145,43 @@ class AuthControllerTest extends TestCase
         $response->assertSessionHas('status', 'Unable to login at this time. Please try again.');
     }
 
+    public function test_callback_redirects_to_after_register_url_when_coming_from_register()
+    {
+        // Set session to indicate this is coming from registration flow
+        session(['usersau_flow' => 'register']);
+        
+        $socialiteUserMock = Mockery::mock();
+        $socialiteUserMock->shouldReceive('getId')->andReturn('67890');
+        $socialiteUserMock->shouldReceive('getName')->andReturn('Jane Doe');
+        $socialiteUserMock->shouldReceive('getEmail')->andReturn('jane@example.com');
+        $socialiteUserMock->shouldReceive('getAvatar')->andReturn('http://localhost/avatar.jpg');
+        $socialiteUserMock->token = 'access_token_456';
+        $socialiteUserMock->refreshToken = 'refresh_token_456';
+
+        $socialiteDriverMock = Mockery::mock();
+        $socialiteDriverMock->shouldReceive('user')
+            ->once()
+            ->andReturn($socialiteUserMock);
+
+        Socialite::shouldReceive('driver')
+            ->with('usersau')
+            ->once()
+            ->andReturn($socialiteDriverMock);
+
+        Auth::shouldReceive('login')->once();
+
+        $response = $this->get('/auth/usersau/callback');
+
+        // Should redirect to after_register_url when coming from registration
+        $response->assertRedirect('/welcome');
+
+        $this->assertDatabaseHas('users', [
+            'usersau_id' => '67890',
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+        ]);
+    }
+
     public function test_logout_logs_out_user_and_redirects_to_usersau()
     {
         Auth::shouldReceive('logout')->once();
@@ -181,7 +218,14 @@ class AuthControllerTest extends TestCase
     {
         $response = $this->get('/auth/usersau/register');
 
-        $response->assertRedirect('http://localhost/register');
+        $response->assertRedirect();
+        $targetUrl = $response->getTargetUrl();
+        $this->assertStringContainsString('http://localhost/register', $targetUrl);
+        $this->assertStringContainsString('redirect_uri=', $targetUrl);
+        $this->assertStringContainsString(urlencode(url('/auth/usersau/callback')), $targetUrl);
+        
+        // Verify session is set to track registration flow
+        $this->assertEquals('register', session('usersau_flow'));
     }
 
     public function test_routes_are_registered_with_correct_names()
