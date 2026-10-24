@@ -14,6 +14,10 @@ class AuthControllerTest extends TestCase
     public function test_redirect_initiates_oauth_flow()
     {
         $socialiteDriverMock = Mockery::mock();
+        $socialiteDriverMock->shouldReceive('scopes')
+            ->with(['openid', 'profile', 'email'])
+            ->once()
+            ->andReturnSelf();
         $socialiteDriverMock->shouldReceive('redirect')
             ->once()
             ->andReturn(new RedirectResponse('http://localhost/oauth/authorize'));
@@ -27,6 +31,37 @@ class AuthControllerTest extends TestCase
 
         $response->assertRedirect();
         $this->assertEquals('http://localhost/oauth/authorize', $response->getTargetUrl());
+    }
+
+    public function test_authorization_url_requests_identity_profile_and_email_scopes()
+    {
+        Socialite::extend('usersau', function ($app) {
+            $provider = new \SocialiteProviders\Usersau\Provider(
+                $app['request'],
+                config('services.usersau.client_id'),
+                config('services.usersau.client_secret'),
+                config('services.usersau.redirect')
+            );
+
+            return $provider->setConfig(new \SocialiteProviders\Manager\Config(
+                config('services.usersau.client_id'),
+                config('services.usersau.client_secret'),
+                config('services.usersau.redirect'),
+                ['host' => config('services.usersau.host')]
+            ));
+        });
+
+        $response = $this->get('/auth/usersau/redirect');
+
+        $response->assertRedirect();
+        parse_str(parse_url($response->getTargetUrl(), PHP_URL_QUERY), $query);
+
+        $this->assertSame('code', $query['response_type']);
+        $this->assertEqualsCanonicalizing(
+            ['openid', 'profile', 'email'],
+            array_filter(explode(' ', trim($query['scope'])))
+        );
+        $this->assertNotEmpty($query['state']);
     }
 
     public function test_callback_creates_new_user_and_logs_in()
