@@ -1,44 +1,62 @@
-# Users.au OAuth Laravel Client
+<div align="center">
 
-[![Latest Stable Version](https://poser.pugx.org/users-au/laravel-client/v/stable.svg)](https://packagist.org/packages/users-au/laravel-client)
-[![License](https://poser.pugx.org/users-au/laravel-client/license.svg)](LICENSE.md)
-[![Total Downloads](https://img.shields.io/packagist/dt/users-au/laravel-client.svg?style=flat-square)](https://packagist.org/packages/users-au/laravel-client)
-[![Tests](https://github.com/users-au/laravel-client/workflows/Tests/badge.svg)](https://github.com/users-au/laravel-client/actions)
+# Users.au Laravel Client
 
-## Table of Contents
+**Bring hosted identity into your Laravel application.**
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Reference](#api-reference)
-- [Migration Guide](#migration-guide)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Changelog](#changelog)
-- [License](#license)
+[Quick start](#installation) · [Configuration](#configuration) · [Screenshots](#usersau-in-action) · [Users.au](https://www.users.au)
 
-## Introduction
+[![Packagist](https://img.shields.io/packagist/v/users-au/laravel-client?style=flat-square)](https://packagist.org/packages/users-au/laravel-client) [![Downloads](https://img.shields.io/packagist/dt/users-au/laravel-client?style=flat-square)](https://packagist.org/packages/users-au/laravel-client) [![Checks](https://img.shields.io/github/actions/workflow/status/Users-au/laravel-client/tests.yml?branch=main&style=flat-square)](https://github.com/Users-au/laravel-client/actions/workflows/tests.yml) [![MIT license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://opensource.org/licenses/MIT) [![Issues](https://img.shields.io/github/issues/Users-au/laravel-client?style=flat-square)](https://github.com/Users-au/laravel-client/issues) [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](https://github.com/Users-au/laravel-client/pulls)
 
-This package provides a seamless Laravel integration for Users.au OAuth authentication. It simplifies the process of implementing Users.au single sign-on (SSO) in your Laravel applications, handling authentication, user management, and session control.
+</div>
 
-## Features
+Add Users.au OAuth routes, synchronize users into your application's model,
+and connect account management and coordinated sign-out.
 
-- 🔐 **OAuth 2.0 Authentication** - Secure authentication via Users.au
-- 👤 **Automatic User Management** - Creates and updates user records automatically
-- 🔄 **Token Management** - Handles access and refresh tokens
-- 🎨 **Profile Photo Support** - Optional profile photo synchronization
-- 🛡️ **Middleware Protection** - Configurable middleware for route protection
-- 📱 **Account Management** - Direct integration with Users.au account pages
-- 🚪 **Single Sign-Out** - Coordinated logout across systems
+```bash
+composer require users-au/laravel-client
+```
+
+| 🔐 OAuth routes | 👤 Local users | 🎨 Your application |
+| --- | --- | --- |
+| Login, registration, callback, account and logout routes. | Configurable user model and optional profile-photo column. | Keep your Laravel UI, database and application permissions. |
+
+> [!TIP]
+> Starting a new application? Try the [Laravel starter kit](https://github.com/Users-au/laravel-starter-kit).
+> Need to own the Socialite flow yourself? Use the [Socialite provider](https://github.com/Users-au/socialite-provider).
+
+## Users.au in action
+
+Users.au hosts the authentication experience on your identity domain. Enable the
+sign-in methods available to your project and connect them to your application
+through OAuth. These official product screenshots show the hosted experience.
+
+<table>
+  <tr><th>🔑 Branded sign-in & social providers</th><th>🛡️ Multi-factor authentication</th></tr>
+  <tr>
+    <td width="50%"><a href="docs/images/usersau-social.png"><img src="docs/images/usersau-social.png" alt="Users.au branded sign-in with Google, Facebook and GitHub options" width="440"></a></td>
+    <td width="50%"><a href="docs/images/usersau-mfa.png"><img src="docs/images/usersau-mfa.png" alt="Users.au authenticator-code challenge with recovery-code option" width="440"></a></td>
+  </tr>
+</table>
+
+<details>
+<summary><strong>👆 Preview the passkey experience</strong></summary>
+
+![Users.au passkey sign-in with a Touch ID prompt](docs/images/usersau-passkey.png)
+
+</details>
+
+[Explore Users.au](https://www.users.au) · [Create a project](https://my.users.au) · [Image sources](docs/images/README.md)
+
+## Documentation
+
+[Requirements](#requirements) · [Install](#installation) · [Configuration](#configuration) · [Usage](#usage) · [API](#api-reference) · [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
 - [PHP](https://php.net) >= 8.0
 - [Composer](https://getcomposer.org) >= 2.0
-- Laravel 5.0+ (supports versions 5.x through 10.x)
+- Illuminate/Laravel component constraints: 5.x–12.x in `composer.json`; choose a compatible PHP/framework combination. The current CI matrix exercises Laravel 8–10.
 - Users.au OAuth application credentials
 
 ## Installation
@@ -108,6 +126,11 @@ USERSAU_CLIENT_SECRET="your_client_secret"
 USERSAU_REDIRECT_URI="https://yourdomain.com/auth/usersau/callback"
 USERSAU_HOST="https://auth.yourdomain.com"
 ```
+
+The current login controller requests `openid`, `profile` and `email` scopes.
+Confirm those names are supported by your OAuth registration. Scope requirements
+can differ between registrations; inspect the generated authorization request
+when diagnosing `invalid_scope`.
 
 ### 4. Package Configuration
 
@@ -256,14 +279,17 @@ Redirects to Users.au registration page.
 
 ## Migration Guide
 
-### From Version 1.x to 2.x
+Review the target release and back up your application's published configuration
+before updating:
 
-If you're upgrading from an older version:
+```bash
+composer update users-au/laravel-client --with-dependencies
+```
 
-1. Update your composer requirements
-2. Run `php artisan vendor:publish --provider="Usersau\UsersauLaravelClient\UsersauLaravelClientServiceProvider" --force`
-3. Run `php artisan migrate`
-4. Update your environment variables if needed
+Compare changed package configuration and migration files with your application's
+copies before publishing or running them. Preserve existing secrets, local
+configuration and user data, then verify login, callback, user mapping and logout
+in your target environment.
 
 ## Troubleshooting
 
@@ -314,6 +340,16 @@ For additional support:
 - Review the [Users.au Documentation](https://www.users.au/docs)
 - Contact support at [support@users.au](mailto:support@users.au)
 
+## Choose your integration
+
+| Project | Use it when you want to… |
+| --- | --- |
+| [Next.js starter](https://github.com/Users-au/nextjs-starter-kit) | Start a Next.js app with server-managed OAuth sessions and a protected dashboard. |
+| [Laravel starter](https://github.com/Users-au/laravel-starter-kit) | Start a Laravel app with Blade templates and Users.au integration. |
+| [**Laravel client — this repo**](https://github.com/Users-au/laravel-client) | Add local user synchronization and authentication routes to a Laravel app. |
+| [Socialite provider](https://github.com/Users-au/socialite-provider) | Connect an existing Laravel Socialite authentication flow to Users.au. |
+| [Frontend client](https://github.com/Users-au/frontend-client) | Use public-client OAuth with PKCE in JavaScript, Vue or React. |
+
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
@@ -346,4 +382,3 @@ Please see [CHANGELOG.md](CHANGELOG.md) for more information on what has changed
 ## License
 
 The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
-
