@@ -31,6 +31,10 @@ class UsersauLaravelClientServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(): void
     {
+        if (!config('usersau.routes_enabled', true)) {
+            return;
+        }
+
         Route::group($this->routeConfiguration(), function () {
             $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         });
