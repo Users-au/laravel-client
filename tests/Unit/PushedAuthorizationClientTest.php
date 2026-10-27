@@ -12,16 +12,16 @@ class PushedAuthorizationClientTest extends TestCase
 {
     public function test_context_and_credentials_travel_only_over_the_server_request(): void
     {
-        Http::fake(['https://shopper.users.au/oauth/par' => Http::response([
+        Http::fake(['https://identity.example/oauth/par' => Http::response([
             'request_uri' => 'urn:ietf:params:oauth:request_uri:' . str_repeat('x', 64), 'expires_in' => 300,
         ], 201)]);
         $url = $this->client()->authorizationUrl($this->parameters(), $this->provider());
-        $this->assertStringStartsWith('https://shopper.users.au/oauth/authorize?', $url);
+        $this->assertStringStartsWith('https://identity.example/oauth/authorize?', $url);
         $this->assertStringNotContainsString('secret', $url);
-        $this->assertStringNotContainsString('Shop A', $url);
+        $this->assertStringNotContainsString('Workspace A', $url);
         Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Basic ' . base64_encode('client:secret'))
-            && json_decode($request['context'], true)['branding']['name'] === 'Shop A'
-            && $request['redirect_uri'] === 'https://shop.example/callback');
+            && json_decode($request['context'], true)['branding']['name'] === 'Workspace A'
+            && $request['redirect_uri'] === 'https://portal.example/callback');
     }
 
     public function test_provider_failures_do_not_include_sensitive_response_bodies(): void
@@ -54,12 +54,12 @@ class PushedAuthorizationClientTest extends TestCase
 
     private function client(): PushedAuthorizationClient
     {
-        return new PushedAuthorizationClient(['host' => 'https://shopper.users.au', 'client_id' => 'client', 'client_secret' => 'secret']);
+        return new PushedAuthorizationClient(['host' => 'https://identity.example', 'client_id' => 'client', 'client_secret' => 'secret']);
     }
 
     private function parameters(): array
     {
-        return ['redirect_uri' => 'https://shop.example/callback', 'state' => 'state', 'code_challenge' => 'challenge'];
+        return ['redirect_uri' => 'https://portal.example/callback', 'state' => 'state', 'code_challenge' => 'challenge'];
     }
 
     private function provider(): AuthContextProvider
@@ -67,7 +67,7 @@ class PushedAuthorizationClientTest extends TestCase
         return new class implements AuthContextProvider {
             public function context(): array
             {
-                return ['store_id' => 'a', 'branding' => ['name' => 'Shop A'], 'links' => ['home_url' => 'https://shop.example']];
+                return ['context_id' => 'a', 'branding' => ['name' => 'Workspace A'], 'links' => ['home_url' => 'https://portal.example']];
             }
         };
     }

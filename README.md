@@ -383,11 +383,11 @@ Please see [CHANGELOG.md](CHANGELOG.md) for more information on what has changed
 
 The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
 
-### Platform authentication with per-request site context
+### Platform authentication with application-defined context
 
-A platform can use one confidential client and one Users.au tenant for all of its sites. The identity provider must implement `/oauth/par` and explicitly opt this client into dynamic contexts. No per-site OAuth keys or persistent branding synchronization are required.
+A platform can use one confidential client and one Users.au tenant for its sites, workspaces, organizations or projects. The identity provider must implement `/oauth/par` and explicitly opt this client into dynamic contexts. No per-context OAuth keys or persistent branding synchronization are required.
 
-Implement `Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::context()` in the consuming app. Return `store_id`, `branding` (`name`, optional HTTPS `logo_url`, `logo_dark_url`, `favicon_url`, six-digit `theme_color`), and `links` (`home_url`, optional HTTPS `support_url`). Resolve all values from your server-side tenant registry; never copy callback URLs or branding directly from browser input.
+Implement `Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::context()` in the consuming app. Return `context_id`, `branding` (`name`, optional HTTPS `logo_url`, `logo_dark_url`, `favicon_url`, six-digit `theme_color`), and `links` (`home_url`, optional HTTPS `support_url`). The identifier is stable and scoped to the calling OAuth client; it identifies the logical context, not an authentication attempt. It does not grant membership or authorization. Resolve all values from your own server-side application data; never copy callback URLs or branding directly from browser input.
 
 ```php
 $url = (new \Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient([
@@ -403,4 +403,4 @@ $url = (new \Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient([
 
 The SDK submits credentials via HTTP Basic over HTTPS and context as JSON inside the form body. The browser receives only `client_id` and a short-lived `request_uri`. Continue using authorization-code exchange, S256 PKCE, one-time state and the exact callback from the initiating session. Provider errors expose no response bodies. This is an opt-in service; legacy SDK routes and login behavior remain unchanged. Set `usersau.routes_enabled=false` when an app owns its authentication controllers and uses only this service.
 
-Identity remains shared in the Users.au tenant; the consuming app owns store-local user records and their links to the provider subject. The server contract and lifecycle are documented by the auth-tenant implementation; PAR follows RFC 9126, with the `context` extension defined here. Future context fields require an explicit contract update.
+Identity remains shared in the Users.au tenant; the consuming app owns context-local user records and their links to the provider subject. The server contract and lifecycle are documented by the auth-tenant implementation; PAR follows RFC 9126, with the `context` extension defined here. Future context fields require an explicit contract update.
