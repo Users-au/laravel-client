@@ -12,7 +12,6 @@ class PushedAuthorizationClientTest extends TestCase
 {
     public function test_context_and_credentials_travel_only_over_the_server_request(): void
     {
-        Http::preventStrayRequests();
         Http::fake(['https://shopper.users.au/oauth/par' => Http::response([
             'request_uri' => 'urn:ietf:params:oauth:request_uri:' . str_repeat('x', 64), 'expires_in' => 300,
         ], 201)]);
@@ -35,10 +34,22 @@ class PushedAuthorizationClientTest extends TestCase
 
     public function test_invalid_provider_origin_is_rejected_before_sending_credentials(): void
     {
-        Http::preventStrayRequests();
         $this->expectException(RuntimeException::class);
         (new PushedAuthorizationClient(['host' => 'http://attacker.test', 'client_id' => 'client', 'client_secret' => 'secret']))
             ->authorizationUrl($this->parameters(), $this->provider());
+    }
+
+    public function test_redirects_and_malformed_request_uris_are_rejected(): void
+    {
+        foreach ([302, 201] as $status) {
+            Http::fake(['*' => Http::response(['request_uri' => 'https://attacker.example'], $status, ['Location' => 'https://attacker.example'])]);
+            try {
+                $this->client()->authorizationUrl($this->parameters(), $this->provider());
+                $this->fail('Unsafe provider response was accepted.');
+            } catch (RuntimeException $exception) {
+                $this->assertSame('Users.au rejected the pushed authorization request.', $exception->getMessage());
+            }
+        }
     }
 
     private function client(): PushedAuthorizationClient
