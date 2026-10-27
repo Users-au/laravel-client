@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   code-quality:
     runs-on: ubuntu-latest
@@ -29,7 +33,9 @@ jobs:
       id: composer-cache
       uses: actions/cache@v3
       with:
-        path: vendor
+        path: |
+          vendor
+          ~/.cache/composer/files
         key: ${{ runner.os }}-php-8.3-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-8.3-
