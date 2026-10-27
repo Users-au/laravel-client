@@ -1,13 +1,16 @@
 name: Code Quality
 
 on:
-  push:
-    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   code-quality:
@@ -29,7 +32,9 @@ jobs:
       id: composer-cache
       uses: actions/cache@v3
       with:
-        path: vendor
+        path: |
+          vendor
+          ~/.cache/composer/files
         key: ${{ runner.os }}-php-8.3-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-8.3-
