@@ -54,9 +54,9 @@ through OAuth. These official product screenshots show the hosted experience.
 
 ## Requirements
 
-- [PHP](https://php.net) >= 8.0
+- [PHP](https://php.net) ^8.5.12
 - [Composer](https://getcomposer.org) >= 2.0
-- Illuminate/Laravel component constraints: 5.x–12.x in `composer.json`; choose a compatible PHP/framework combination. The current CI matrix exercises Laravel 8–10.
+- Laravel/Illuminate ^12.70.0. SDK 2 targets the coordinated Auth/Kshop upgrade; CI tests the minimum and current supported Laravel 12 versions.
 - Users.au OAuth application credentials
 
 ## Installation
@@ -404,3 +404,7 @@ $url = (new \Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient([
 The SDK submits credentials via HTTP Basic over HTTPS and context as JSON inside the form body. The browser receives only `client_id` and a short-lived `request_uri`. Continue using authorization-code exchange, S256 PKCE, one-time state and the exact callback from the initiating session. Provider errors expose no response bodies. This is an opt-in service; legacy SDK routes and login behavior remain unchanged. Set `usersau.routes_enabled=false` when an app owns its authentication controllers and uses only this service.
 
 Identity remains shared in the Users.au tenant; the consuming app owns context-local user records and their links to the provider subject. The server contract and lifecycle are documented by the auth-tenant implementation; PAR follows RFC 9126, with the `context` extension defined here. Future context fields require an explicit contract update.
+
+## Identity profiles and account preferences
+
+See [Identity profile and preferences](docs/identity-preferences.md) for full OIDC claim parsing, profile events, scope configuration, versioned writeback and token refresh.

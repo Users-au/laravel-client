@@ -15,7 +15,7 @@ class AuthControllerTest extends TestCase
     {
         $socialiteDriverMock = Mockery::mock();
         $socialiteDriverMock->shouldReceive('scopes')
-            ->with(['openid', 'profile', 'email'])
+            ->with(['openid', 'profile', 'email', 'preferences:read', 'preferences:write'])
             ->once()
             ->andReturnSelf();
         $socialiteDriverMock->shouldReceive('redirect')
@@ -33,7 +33,7 @@ class AuthControllerTest extends TestCase
         $this->assertEquals('http://localhost/oauth/authorize', $response->getTargetUrl());
     }
 
-    public function test_authorization_url_requests_identity_profile_and_email_scopes()
+    public function test_authorization_url_requests_identity_and_preference_scopes()
     {
         Socialite::extend('usersau', function ($app) {
             $provider = new \SocialiteProviders\Usersau\Provider(
@@ -58,7 +58,7 @@ class AuthControllerTest extends TestCase
 
         $this->assertSame('code', $query['response_type']);
         $this->assertEqualsCanonicalizing(
-            ['openid', 'profile', 'email'],
+            ['openid', 'profile', 'email', 'preferences:read', 'preferences:write'],
             array_filter(explode(' ', trim($query['scope'])))
         );
         $this->assertNotEmpty($query['state']);
@@ -184,7 +184,7 @@ class AuthControllerTest extends TestCase
     {
         // Set session to indicate this is coming from registration flow
         session(['usersau_flow' => 'register']);
-        
+
         $socialiteUserMock = Mockery::mock();
         $socialiteUserMock->shouldReceive('getId')->andReturn('67890');
         $socialiteUserMock->shouldReceive('getName')->andReturn('Jane Doe');
@@ -258,7 +258,7 @@ class AuthControllerTest extends TestCase
         $this->assertStringContainsString('http://localhost/register', $targetUrl);
         $this->assertStringContainsString('redirect_uri=', $targetUrl);
         $this->assertStringContainsString(urlencode(url('/auth/usersau/callback')), $targetUrl);
-        
+
         // Verify session is set to track registration flow
         $this->assertEquals('register', session('usersau_flow'));
     }
