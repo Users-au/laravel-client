@@ -42,4 +42,12 @@ class IdentityProfileCallbackTest extends TestCase
         $this->get('/auth/usersau/callback')->assertStatus(502);
         $this->assertDatabaseCount('users', 0);
     }
+    public function test_malformed_provider_profiles_are_rejected_before_any_local_account_write(): void
+    {
+        $provider = \Mockery::mock();
+        $provider->shouldReceive('user')->once()->andThrow(new \UnexpectedValueException('upstream-private-detail'));
+        \Laravel\Socialite\Facades\Socialite::shouldReceive('driver')->with('usersau')->once()->andReturn($provider);
+        $this->get('/auth/usersau/callback')->assertStatus(502)->assertDontSee('upstream-private-detail');
+        $this->assertDatabaseCount('users', 0);
+    }
 }
