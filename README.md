@@ -54,9 +54,9 @@ through OAuth. These official product screenshots show the hosted experience.
 
 ## Requirements
 
-- [PHP](https://php.net) >= 8.0
+- [PHP](https://php.net) ^8.5.12
 - [Composer](https://getcomposer.org) >= 2.0
-- Illuminate/Laravel component constraints: 5.x–12.x in `composer.json`; choose a compatible PHP/framework combination. The current CI matrix exercises Laravel 8–10.
+- Laravel/Illuminate ^12.70.0. SDK 2 targets the coordinated Auth/Kshop upgrade; CI tests the minimum and current supported Laravel 12 versions.
 - Users.au OAuth application credentials
 
 ## Installation

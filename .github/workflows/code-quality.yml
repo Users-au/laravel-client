@@ -24,20 +24,20 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 8.3
+        php-version: '8.5.12'
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
         coverage: xdebug
     
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           vendor
           ~/.cache/composer/files
-        key: ${{ runner.os }}-php-8.3-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php-8.5.12-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-php-8.3-
+          ${{ runner.os }}-php-8.5.12-
     
     - name: Install dependencies
       run: composer update --prefer-dist --no-interaction --no-progress

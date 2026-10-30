@@ -14,7 +14,7 @@ class AuthController extends Controller
         session(['usersau_flow' => 'login']);
 
         return Socialite::driver('usersau')
-            ->scopes(config('usersau.scopes', ['openid', 'profile', 'email']))
+            ->scopes(config('usersau.scopes', ['openid', 'profile', 'email', 'preferences:read', 'preferences:write']))
             ->redirect();
     }
 
