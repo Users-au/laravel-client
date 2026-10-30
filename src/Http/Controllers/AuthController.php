@@ -12,9 +12,9 @@ class AuthController extends Controller
     {
         // Store in session that this is a login flow
         session(['usersau_flow' => 'login']);
-        
+
         return Socialite::driver('usersau')
-            ->scopes(['openid', 'profile', 'email'])
+            ->scopes(config('usersau.scopes', ['openid', 'profile', 'email']))
             ->redirect();
     }
 
@@ -24,6 +24,12 @@ class AuthController extends Controller
             /** @var \SocialiteProviders\Manager\OAuth2\User $user */
             $authUser = Socialite::driver('usersau')->user();
             // Let's create a new entry in our users table (or update if it already exists) with some information from the user
+            $claims = is_array($authUser->user ?? null) ? $authUser->user : [];
+            $claims['sub'] = $claims['sub'] ?? (string) $authUser->getId();
+            if ((string) $authUser->getId() !== '' && $claims['sub'] !== (string) $authUser->getId()) {
+                abort(502, 'Identity subject mismatch.');
+            }
+            $normalizedProfile = new \Usersau\UsersauLaravelClient\Identity\UserProfile($claims);
             $userModel = app(config('usersau.user_model'));
 
             $updateArray = [
@@ -33,20 +39,30 @@ class AuthController extends Controller
                 'usersau_refresh_token' => $authUser->refreshToken,
             ];
             if (config('usersau.profile_photo_column') ?? false) {
-                $updateArray[config('usersau.profile_photo_column')] = $authUser->getAvatar();
+                $picture = $normalizedProfile->toArray()['picture'] ?? $authUser->getAvatar();
+                if (is_string($picture) && filter_var($picture, FILTER_VALIDATE_URL)
+                    && in_array(parse_url($picture, PHP_URL_SCHEME), ['http', 'https'], true)) {
+                    $updateArray[config('usersau.profile_photo_column')] = $picture;
+                }
             }
-            
+
             $user = $userModel->updateOrCreate([
-                'usersau_id' => $authUser->getId(),
+                'usersau_id' => $claims['sub'],
             ], $updateArray);
-            
+
+            event(new \Usersau\UsersauLaravelClient\Events\UserProfileSynchronized(
+                $user,
+                $normalizedProfile,
+                rtrim((string) config('services.usersau.host'), '/'),
+            ));
+
             // Logging the user in
             app(\Illuminate\Support\Facades\Auth::class)::login($user);
-            
+
             // Redirect based on the flow that initiated the OAuth process
             $flow = session('usersau_flow', 'login'); // Default to login for backward compatibility
             session()->forget('usersau_flow'); // Clean up the session
-            
+
             if ($flow === 'register') {
                 $url = config('usersau.after_register_url');
             } else {
@@ -86,13 +102,13 @@ class AuthController extends Controller
     {
         // Store in session that this is a registration flow
         session(['usersau_flow' => 'register']);
-        
+
         // Build the registration URL with redirect_uri parameter, similar to how Socialite handles login
         $callbackUrl = url('/auth/usersau/callback');
         $registerUrl = config('services.usersau.host') . '/register?' . http_build_query([
             'redirect_uri' => $callbackUrl,
         ]);
-        
+
         return redirect()->away($registerUrl);
     }
 }

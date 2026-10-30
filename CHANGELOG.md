@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-30
+
+### Added
+- Preserve standard OIDC UserInfo fields in a typed profile and emit UserProfileSynchronized during login. Validate subject consistency before updating the local account.
+- Add opt-in preference scopes and a versioned IdentityClient with fixed issuer, subject validation, bounded token refresh, and safe error codes.
+- Keep existing SDK login/registration defaults compatible. See docs/identity-preferences.md for adoption and reauthorization.
+
 ## [1.2.2] - 2026-10-25
 
 ### Fixed
