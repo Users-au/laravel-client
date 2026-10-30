@@ -72,6 +72,8 @@ class AuthController extends Controller
             return redirect()->to($url);
         } catch (\Laravel\Socialite\Two\InvalidStateException|\GuzzleHttp\Exception\ClientException $e) {
             return redirect()->route('usersau.login')->with('status', 'Unable to login at this time. Please try again.');
+        } catch (\UnexpectedValueException|\InvalidArgumentException $exception) {
+            abort(502, 'Invalid identity profile.');
         }
     }
 

@@ -1,4 +1,4 @@
-# Identity profile and preferences (SDK 2.0)
+# Identity profile and preferences (SDK 2.1)
 
 The SDK preserves the standard UserInfo claims in `Identity\UserProfile` and emits `Events\UserProfileSynchronized` before logging in the local user. The event contains the local model, typed profile and configured issuer. Its profile payload excludes OAuth credentials; the backend user model keeps its normal hidden token attributes. A standard `sub` works without the legacy `id`; inconsistent subjects are rejected before writing the local model.
 
@@ -30,6 +30,8 @@ Requests use a bearer header, fixed configured issuer, five-second total/two-sec
 
 Persist the full successful snapshot and version. Use field-level updates, serialize writes in the browser, and ignore responses from previous accounts. Auth is authoritative; local database copies are caches, not a distributed transaction. Fetch on login/application entry/focus to converge across devices.
 
-Shared-saas 5.11 supplies the central/admin storage and browser integration. Its guide describes middleware order, session/CSRF proxy endpoints, rollout and migrations: [identity-profile-preferences](https://github.com/sicaboy/shared-saas/blob/fix/shared-theme-manager/docs/identity-profile-preferences.md).
+Shared-saas 5.11 supplies the central/admin storage and browser integration. Its guide describes middleware order, session/CSRF proxy endpoints, rollout and migrations: [identity-profile-preferences](https://github.com/sicaboy/shared-saas/blob/v5.11.0/docs/identity-profile-preferences.md).
 
 SDK 2 requests profile/email and preference read/write scopes by default. Upgrade Auth and deploy its migration before upgrading the coordinated central/admin consumers. Existing tokens need a new authorization grant; refresh cannot add permissions. Applications can explicitly configure scopes for staged operations. Normal OAuth login obtains the configured preference scopes.
+
+SDK 2.1 requires Socialite provider 2. The provider maps standard sub/picture, retains full scoped raw claims and rejects inconsistent identities. Install both source releases before updating consumers.
