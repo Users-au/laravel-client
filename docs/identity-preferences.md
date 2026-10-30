@@ -30,7 +30,7 @@ Requests use a bearer header, fixed configured issuer, five-second total/two-sec
 
 Persist the full successful snapshot and version. Use field-level updates, serialize writes in the browser, and ignore responses from previous accounts. Auth is authoritative; local database copies are caches, not a distributed transaction. Fetch on login/application entry/focus to converge across devices.
 
-Shared-saas 5.11 supplies the central/admin storage and browser integration. Its guide describes middleware order, session/CSRF proxy endpoints, rollout and migrations: [identity-profile-preferences](https://github.com/sicaboy/shared-saas/blob/fix/shared-theme-manager/docs/identity-profile-preferences.md).
+Shared-saas 5.11 supplies the central/admin storage and browser integration. Its guide describes middleware order, session/CSRF proxy endpoints, rollout and migrations: [identity-profile-preferences](https://github.com/sicaboy/shared-saas/blob/v5.11.0/docs/identity-profile-preferences.md).
 
 SDK 2 requests profile/email and preference read/write scopes by default. Upgrade Auth and deploy its migration before upgrading the coordinated central/admin consumers. Existing tokens need a new authorization grant; refresh cannot add permissions. Applications can explicitly configure scopes for staged operations. Normal OAuth login obtains the configured preference scopes.
 
