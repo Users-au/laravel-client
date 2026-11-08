@@ -33,10 +33,15 @@ class AuthController extends Controller
     public function callback()
     {
         try {
-            /** @var \SocialiteProviders\Manager\OAuth2\User $user */
-            $authUser = Socialite::driver('usersau')->user();
+            /** @var \SocialiteProviders\Usersau\Provider $provider */
+            $provider = Socialite::driver('usersau');
+            if (config('usersau.par_enabled', true)) {
+                $provider->enablePKCE();
+            }
+            $authUser = $provider->user();
             // Let's create a new entry in our users table (or update if it already exists) with some information from the user
-            $claims = is_array($authUser->user ?? null) ? $authUser->user : [];
+            $raw = get_object_vars($authUser)['user'] ?? null;
+            $claims = is_array($raw) ? $raw : [];
             $claims['sub'] = $claims['sub'] ?? (string) $authUser->getId();
             if ((string) $authUser->getId() !== '' && $claims['sub'] !== (string) $authUser->getId()) {
                 abort(502, 'Identity subject mismatch.');

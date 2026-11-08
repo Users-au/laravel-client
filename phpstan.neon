@@ -4,8 +4,6 @@ parameters:
         - src
         - tests
     ignoreErrors:
-        - '#Access to an undefined property Laravel\\Socialite\\Contracts\\User::\$token#'
-        - '#Access to an undefined property Laravel\\Socialite\\Contracts\\User::\$refreshToken#'
         - '#Call to an undefined method Illuminate\\Testing\\TestResponse::getTargetUrl\(\)#'
         - '#Access to an undefined property Mockery\\MockInterface::\$token#'
         - '#Access to an undefined property Mockery\\MockInterface::\$refreshToken#'

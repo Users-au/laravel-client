@@ -45,6 +45,31 @@ class PushedEntriesTest extends TestCase
         });
     }
 
+    public function test_callback_recreates_provider_and_sends_original_s256_verifier(): void
+    {
+        $this->get('/auth/usersau/redirect')->assertRedirect();
+        $state = session('state');
+        $verifier = session('code_verifier');
+        Socialite::getFacadeRoot()->forgetDrivers();
+        $history = [];
+        $handler = \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([
+            new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], json_encode(['access_token' => 'fixture-access', 'refresh_token' => 'fixture-refresh', 'token_type' => 'Bearer'])),
+            new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], json_encode(['id' => 'subject-42', 'name' => 'Example User', 'email' => 'user@example.test'])),
+        ]));
+        $handler->push(\GuzzleHttp\Middleware::history($history));
+        $client = new \GuzzleHttp\Client(['handler' => $handler]);
+        $this->app['events']->listen(\Illuminate\Routing\Events\RouteMatched::class, function () use ($client): void {
+            /** @var \SocialiteProviders\Usersau\Provider $provider */
+            $provider = Socialite::driver('usersau');
+            $provider->setHttpClient($client);
+        });
+        Auth::shouldReceive('login')->once();
+        $this->get('/auth/usersau/callback?' . http_build_query(['state' => $state, 'code' => 'fixture-code']))->assertRedirect('/dashboard');
+        parse_str((string) $history[0]['request']->getBody(), $fields);
+        $this->assertSame($verifier, $fields['code_verifier']);
+        $this->assertSame('https://app.example/auth/usersau/callback', $fields['redirect_uri']);
+    }
+
     public function test_account_pushes_fresh_context_and_guest_never_gets_an_account_handle(): void
     {
         Auth::shouldReceive('user')->once()->andReturn(null);
