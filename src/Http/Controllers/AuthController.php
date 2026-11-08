@@ -4,7 +4,10 @@ namespace Usersau\UsersauLaravelClient\Http\Controllers;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Usersau\UsersauLaravelClient\Contracts\AuthContextProvider;
+use Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient;
 
 class AuthController extends Controller
 {
@@ -13,9 +16,18 @@ class AuthController extends Controller
         // Store in session that this is a login flow
         session(['usersau_flow' => 'login']);
 
-        return Socialite::driver('usersau')
-            ->scopes(config('usersau.scopes', ['openid', 'profile', 'email', 'preferences:read', 'preferences:write']))
-            ->redirect();
+        /** @var \SocialiteProviders\Usersau\Provider $provider */
+        $provider = Socialite::driver('usersau');
+        $provider->scopes(config('usersau.scopes', ['openid', 'profile', 'email', 'preferences:read', 'preferences:write']));
+        if (!config('usersau.par_enabled', true)) {
+            return $provider->redirect();
+        }
+        // Socialite owns state, the S256 verifier and callback verification for both paths.
+        $authorization = $provider->enablePKCE()->redirect();
+        parse_str(parse_url($authorization->getTargetUrl(), PHP_URL_QUERY) ?? '', $parameters);
+
+        return redirect()->away($this->pushedClient()->authorizationUrl($parameters, app(AuthContextProvider::class)));
+
     }
 
     public function callback()
@@ -57,7 +69,8 @@ class AuthController extends Controller
             ));
 
             // Logging the user in
-            app(\Illuminate\Support\Facades\Auth::class)::login($user);
+            Auth::login($user);
+            request()->session()->regenerate();
 
             // Redirect based on the flow that initiated the OAuth process
             $flow = session('usersau_flow', 'login'); // Default to login for backward compatibility
@@ -80,7 +93,14 @@ class AuthController extends Controller
     public function logout()
     {
         /** @var Authenticatable $user */
-        app(\Illuminate\Support\Facades\Auth::class)::logout();
+        $pushedUrl = config('usersau.par_enabled', true)
+            ? $this->pushedClient()->logoutUrl(app(AuthContextProvider::class)) : null;
+        Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        if ($pushedUrl) {
+            return redirect()->away($pushedUrl);
+        }
         // Build the logout URL using the host from the config file
         $url = config('services.usersau.host') . '/logout?' . http_build_query([
             'continue' => url(config('usersau.after_logout_url')),
@@ -92,16 +112,24 @@ class AuthController extends Controller
     public function account()
     {
         /** @var Authenticatable $user */
-        $user = app(\Illuminate\Support\Facades\Auth::class)::user();
+        $user = Auth::user();
         if (! $user) {
             return redirect()->route('usersau.login');
         }
 
-        return redirect()->away(config('services.usersau.host') . '/account');
+        return redirect()->away(config('usersau.par_enabled', true)
+            ? $this->pushedClient()->accountUrl(app(AuthContextProvider::class))
+            : config('services.usersau.host') . '/account');
     }
 
     public function register()
     {
+        if (config('usersau.par_enabled', true)) {
+            $response = $this->redirect();
+            session(['usersau_flow' => 'register']);
+
+            return $response;
+        }
         // Store in session that this is a registration flow
         session(['usersau_flow' => 'register']);
 
@@ -112,5 +140,9 @@ class AuthController extends Controller
         ]);
 
         return redirect()->away($registerUrl);
+    }
+    private function pushedClient(): PushedAuthorizationClient
+    {
+        return new PushedAuthorizationClient(config('services.usersau'));
     }
 }

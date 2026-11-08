@@ -11,9 +11,14 @@
             "role": "Developer"
         }
     ],
-    "repositories": [{"type": "vcs", "url": "https://github.com/Users-au/socialite-provider"}],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Users-au/socialite-provider"
+        }
+    ],
     "require": {
-        "php" : "^8.5.12",
+        "php": "^8.5.12",
         "users-au/socialite-provider": "^2.0",
         "illuminate/support": "^12.70.0",
         "illuminate/routing": "^12.70.0",
@@ -52,11 +57,11 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "2.0-dev"
+            "dev-main": "3.0-dev"
         },
         "laravel": {
             "providers": [
-              "Usersau\\UsersauLaravelClient\\UsersauLaravelClientServiceProvider"
+                "Usersau\\UsersauLaravelClient\\UsersauLaravelClientServiceProvider"
             ]
         }
     },

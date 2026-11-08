@@ -17,6 +17,14 @@ class UsersauLaravelClientServiceProvider extends ServiceProvider
     /**
      * Publishes all the config file this package needs to function.
      */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__ . '/../config/usersau.php', 'usersau');
+        $this->app->bind(\Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::class, function ($app) {
+            return $app->make(config('usersau.context_provider', \Usersau\UsersauLaravelClient\OAuth\ConfiguredAuthContextProvider::class));
+        });
+    }
+
     public function boot()
     {
         $this->app->register(\Usersau\UsersauLaravelClient\Providers\EventServiceProvider::class);

@@ -45,6 +45,7 @@ abstract class TestCase extends OrchestraTestCase
         ]);
 
         $app['config']->set('usersau', [
+            'par_enabled' => false,
             'after_login_url' => '/dashboard',
             'after_logout_url' => '/',
             'after_register_url' => '/welcome',
@@ -72,6 +73,7 @@ abstract class TestCase extends OrchestraTestCase
     }
 }
 
+/** @property string|null $usersau_access_token */
 class TestUser extends Model
 {
     protected $table = 'users';

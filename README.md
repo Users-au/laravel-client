@@ -385,9 +385,9 @@ The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
 
 ### Platform authentication with application-defined context
 
-A platform can use one confidential client and one Users.au tenant for its sites, workspaces, organizations or projects. The identity provider must implement `/oauth/par` and explicitly opt this client into dynamic contexts. No per-context OAuth keys or persistent branding synchronization are required.
+A platform can use one confidential client and one Users.au tenant for its sites, workspaces, organizations or projects. The identity provider must implement `/oauth/par` with PAR enabled for this client (new confidential authorization-code clients enable it by default). No per-context OAuth keys or persistent branding synchronization are required.
 
-Implement `Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::context()` in the consuming app. Return `context_id`, `branding` (`name`, optional HTTPS `logo_url`, `logo_dark_url`, `favicon_url`, six-digit `theme_color`), and `links` (`home_url`, optional HTTPS `support_url`). The identifier is stable and scoped to the calling OAuth client; it identifies the logical context, not an authentication attempt. It does not grant membership or authorization. Resolve all values from your own server-side application data; never copy callback URLs or branding directly from browser input.
+Implement `Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::context()` in the consuming app. Return `context_id`, `branding` (`name`, optional HTTPS `logo_url`, `logo_dark_url`, `favicon_url`, six-digit `theme_color`), and `links` (`home_url`, optional HTTPS `support_url` and `logout_url`). The identifier is stable and scoped to the calling OAuth client; it identifies the logical context, not an authentication attempt. It does not grant membership or authorization. Resolve all values from your own server-side application data; never copy callback URLs or branding directly from browser input.
 
 ```php
 $url = (new \Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient([
@@ -401,10 +401,27 @@ $url = (new \Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient([
 ], app(\Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::class));
 ```
 
-The SDK submits credentials via HTTP Basic over HTTPS and context as JSON inside the form body. The browser receives only `client_id` and a short-lived `request_uri`. Continue using authorization-code exchange, S256 PKCE, one-time state and the exact callback from the initiating session. Provider errors expose no response bodies. This is an opt-in service; legacy SDK routes and login behavior remain unchanged. Set `usersau.routes_enabled=false` when an app owns its authentication controllers and uses only this service.
+The SDK submits credentials via HTTP Basic over HTTPS and context as JSON inside the form body. The browser receives only `client_id` and a short-lived `request_uri`. Continue using authorization-code exchange, S256 PKCE, one-time state and the exact callback from the initiating session. Provider errors expose no response bodies. The SDK routes use PAR by default. Set `usersau.par_enabled=false` explicitly to retain legacy OAuth entry points. Set `usersau.routes_enabled=false` when an app owns its authentication controllers and uses only this service.
 
 Identity remains shared in the Users.au tenant; the consuming app owns context-local user records and their links to the provider subject. The server contract and lifecycle are documented by the auth-tenant implementation; PAR follows RFC 9126, with the `context` extension defined here. Future context fields require an explicit contract update.
 
 ## Identity profiles and account preferences
 
 See [Identity profile and preferences](docs/identity-preferences.md) for full OIDC claim parsing, profile events, scope configuration, versioned writeback and token refresh.
+
+## PAR navigation update (next major)
+
+The default server routes now use PAR with Socialite-generated one-time state and S256 PKCE. Account and logout entries create fresh purpose-bound `/oauth/context` handles; they do not reuse a completed login handle. Upgrade Auth and run its tenant migrations before upgrading this SDK. Existing Auth clients retain their saved PAR switch, so explicitly enable existing clients when adopting the new SDK.
+
+`ConfiguredAuthContextProvider` uses trusted `app.url`/`app.name` plus `usersau.context` branding. Bind `Contracts\AuthContextProvider` or set `usersau.context_provider` for multiple sites/workspaces. Never use browser query parameters, Referer or an unchecked Host header to choose branding, home or callback. Account context supplies appearance/navigation only; Auth still authenticates its own user.
+
+```php
+$client = new \Usersau\UsersauLaravelClient\OAuth\PushedAuthorizationClient(config('services.usersau'));
+$context = app(\Usersau\UsersauLaravelClient\Contracts\AuthContextProvider::class);
+$accountUrl = $client->accountUrl($context);
+$logoutUrl = $client->logoutUrl($context);
+```
+
+`links.home_url` is the Logo/Profile return destination. Optional `links.logout_url` is the destination after Auth sign-out (defaults to home). `redirect_uri` remains the exact OAuth callback. A direct visit to Auth login uses the tenant's configured default application login entry after authentication; do not configure that entry as an OAuth callback. Keep local logout CSRF-protected and clear the local session before redirecting to Auth.
+
+The new default is a breaking change. The next major is 3.0; existing integrations can retain their old flow with `par_enabled=false`. This feature branch is an integration candidate, not a published release.
