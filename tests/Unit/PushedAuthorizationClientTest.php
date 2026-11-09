@@ -43,6 +43,7 @@ class PushedAuthorizationClientTest extends TestCase
     {
         foreach ([302, 201] as $status) {
             Http::fake(['*' => Http::response(['request_uri' => 'https://attacker.example'], $status, ['Location' => 'https://attacker.example'])]);
+
             try {
                 $this->client()->authorizationUrl($this->parameters(), $this->provider());
                 $this->fail('Unsafe provider response was accepted.');
@@ -64,7 +65,7 @@ class PushedAuthorizationClientTest extends TestCase
 
     private function provider(): AuthContextProvider
     {
-        return new class implements AuthContextProvider {
+        return new class () implements AuthContextProvider {
             public function context(): array
             {
                 return ['context_id' => 'a', 'branding' => ['name' => 'Workspace A'], 'links' => ['home_url' => 'https://portal.example']];

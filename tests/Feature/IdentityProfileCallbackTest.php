@@ -14,7 +14,8 @@ class IdentityProfileCallbackTest extends TestCase
     public function test_callback_emits_full_claims_with_a_standard_sub_without_legacy_id(): void
     {
         Event::fake([UserProfileSynchronized::class]);
-        $profile = Mockery::mock();
+        /** @var \SocialiteProviders\Manager\OAuth2\User&\Mockery\MockInterface $profile */
+        $profile = Mockery::mock(\SocialiteProviders\Manager\OAuth2\User::class);
         $profile->shouldReceive('getId')->andReturn(null);
         $profile->shouldReceive('getName')->andReturn('Jane');
         $profile->shouldReceive('getEmail')->andReturn('jane@example.test');
@@ -32,7 +33,8 @@ class IdentityProfileCallbackTest extends TestCase
 
     public function test_subject_mismatch_is_rejected_before_the_local_user_is_written(): void
     {
-        $profile = Mockery::mock();
+        /** @var \SocialiteProviders\Manager\OAuth2\User&\Mockery\MockInterface $profile */
+        $profile = Mockery::mock(\SocialiteProviders\Manager\OAuth2\User::class);
         $profile->shouldReceive('getId')->andReturn('legacy-id');
         $profile->user = ['sub' => 'different-sub'];
         $driver = Mockery::mock();
