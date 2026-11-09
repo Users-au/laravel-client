@@ -424,4 +424,4 @@ $logoutUrl = $client->logoutUrl($context);
 
 `links.home_url` is the Logo/Profile return destination. Optional `links.logout_url` is the destination after Auth sign-out (defaults to home). `redirect_uri` remains the exact OAuth callback. A direct visit to Auth login uses the tenant's configured default application login entry after authentication; do not configure that entry as an OAuth callback. Keep local logout CSRF-protected and clear the local session before redirecting to Auth.
 
-The new default is a breaking change. The next major is 3.0; existing integrations can retain their old flow with `par_enabled=false`. This feature branch is an integration candidate, not a published release.
+Version 3.0 enables PAR by default. Existing integrations can set `par_enabled=false` to retain their previous OAuth flow. Deploy the Auth account-context endpoint before adopting the new flow.
