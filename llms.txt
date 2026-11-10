@@ -1,0 +1,16 @@
+# Users.au Laravel Client
+
+> Laravel OAuth 2.0 / SSO client for Users.au: login, registration, callback and logout routes and local user synchronization. Composer package `users-au/laravel-client`. Part of Users.au (https://www.users.au), a hosted identity service.
+
+Install / start: `composer require users-au/laravel-client`
+
+## Docs
+- [README](https://github.com/Users-au/laravel-client/blob/main/README.md): install, configuration, usage, troubleshooting and FAQ
+- [Users.au](https://www.users.au): hosted authentication service
+- [Users.au console](https://my.users.au): create a project and an OAuth application
+
+## Related projects
+- [Laravel starter kit](https://github.com/Users-au/laravel-starter-kit)
+- [Next.js starter kit](https://github.com/Users-au/nextjs-starter-kit)
+- [Laravel Socialite provider (Composer)](https://github.com/Users-au/socialite-provider)
+- [Frontend client (npm)](https://github.com/Users-au/frontend-client)
