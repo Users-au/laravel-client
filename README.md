@@ -340,6 +340,28 @@ For additional support:
 - Review the [Users.au Documentation](https://www.users.au/docs)
 - Contact support at [support@users.au](mailto:support@users.au)
 
+## FAQ
+
+### How do I add Users.au login to a Laravel application?
+
+Run `composer require users-au/laravel-client`, publish the package assets with `php artisan vendor:publish --provider="Usersau\UsersauLaravelClient\UsersauLaravelClientServiceProvider"`, then `php artisan migrate`. Add the `usersau_*` fields to your User model and set the `USERSAU_*` environment variables, as described in [Installation](#installation) and [Configuration](#configuration).
+
+### Which Laravel and PHP versions are supported?
+
+PHP ^8.5.12 and Laravel/Illuminate ^12.70.0. See [Requirements](#requirements).
+
+### Which OAuth scopes does the client request?
+
+The current login controller requests the `openid`, `profile` and `email` scopes. Confirm they are supported by your OAuth registration, and inspect the generated authorization request when diagnosing `invalid_scope`.
+
+### How do I fix the "Invalid State Exception"?
+
+The OAuth `state` parameter did not match. Check that your session driver is configured properly and that cookies are enabled. More in [Troubleshooting](#troubleshooting).
+
+### Should I use this package, the Socialite provider or the Laravel starter kit?
+
+Use the [Laravel starter kit](https://github.com/Users-au/laravel-starter-kit) for a new application, this client to add Users.au routes and local user synchronization to an existing Laravel app, and the [Socialite provider](https://github.com/Users-au/socialite-provider) if you want to own the Socialite flow yourself.
+
 ## Choose your integration
 
 | Project | Use it when you want to… |
